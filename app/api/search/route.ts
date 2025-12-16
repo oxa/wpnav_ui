@@ -15,6 +15,7 @@ type MatchRow = {
   url: string;
   abstract_1l: string;
   score: number;
+  guide_type: string;
 };
 
 export async function POST(req: Request) {
@@ -52,6 +53,7 @@ export async function POST(req: Request) {
       url: r.url,
       abstract_1l: r.abstract_1l,
       score: Number(r.score),
+      guide_type: r.guide_type || "",
     }));
     console.log(results);
 

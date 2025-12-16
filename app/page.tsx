@@ -6,6 +6,7 @@ type Result = {
   url: string;
   abstract_1l: string;
   score: number;
+  guide_type: string;
 };
 
 export default function Home() {
@@ -36,65 +37,179 @@ export default function Home() {
   }
 
   return (
-    <main style={{ maxWidth: 900, margin: "40px auto", padding: 16 }}>
-      <h1 style={{ fontSize: 28, fontWeight: 700 }}>
-        Validated Design / Reference Architecture Search
-      </h1>
+    <>
+      <style dangerouslySetInnerHTML={{__html: `
+        @media (min-width: 640px) {
+          .search-container {
+            flex-direction: row !important;
+          }
+          .search-button {
+            width: auto !important;
+            min-width: 120px;
+          }
+        }
+      `}} />
+      <main style={{ 
+        maxWidth: 900, 
+        margin: "40px auto", 
+        padding: "16px",
+        width: "100%",
+        boxSizing: "border-box"
+      }}>
+        <h1 style={{ 
+          fontSize: "clamp(20px, 4vw, 28px)", 
+          fontWeight: 700,
+          padding: "0 8px"
+        }}>
+          Validated Design / Reference Architecture Search
+        </h1>
 
-      <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
-        <input
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Describe what you’re looking for (e.g., 'AI training pod design with UCS and Nexus')"
-          style={{
-            flex: 1,
-            padding: 12,
-            borderRadius: 10,
-            border: "1px solid #ddd",
-          }}
-        />
-        <button
-          onClick={onSearch}
-          disabled={loading || !prompt.trim()}
-          style={{
-            padding: "12px 16px",
-            borderRadius: 10,
-            border: "1px solid #ddd",
-            cursor: loading ? "default" : "pointer",
-          }}
-        >
-          {loading ? "Searching…" : "Search"}
-        </button>
-      </div>
+        <div className="search-container" style={{ 
+          display: "flex", 
+          flexDirection: "column",
+          gap: 8, 
+          marginTop: 16,
+          padding: "0 8px"
+        }}>
+          <input
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="Describe what you're looking for (e.g., 'AI training pod design with UCS and Nexus')"
+            style={{
+              width: "100%",
+              padding: 12,
+              borderRadius: 10,
+              border: "1px solid #ddd",
+              boxSizing: "border-box",
+              fontSize: "16px"
+            }}
+          />
+          <button
+            className="search-button"
+            onClick={onSearch}
+            disabled={loading || !prompt.trim()}
+            style={{
+              padding: "12px 16px",
+              borderRadius: 10,
+              border: "1px solid #ddd",
+              cursor: loading ? "default" : "pointer",
+              fontSize: "16px",
+              width: "100%"
+            }}
+          >
+            {loading ? "Searching…" : "Search"}
+          </button>
+        </div>
 
       {error && (
-        <p style={{ marginTop: 12, color: "crimson" }}>
+        <p style={{ marginTop: 12, color: "crimson", padding: "0 8px" }}>
           {error}
         </p>
       )}
 
-      <div style={{ marginTop: 24, display: "grid", gap: 12 }}>
-        {results.map((r) => (
-          <div
-            key={r.url}
-            style={{
-              border: "1px solid #eee",
-              borderRadius: 14,
-              padding: 14,
-            }}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
-              <a href={r.url} target="_blank" rel="noreferrer" style={{ fontWeight: 600 }}>
-                {r.url}
-              </a>
-              <span style={{ fontFamily: "monospace" }}>
-                {Number.isFinite(r.score) ? r.score.toFixed(3) : "—"}
-              </span>
+      <div style={{ marginTop: 24, display: "grid", gap: 12, padding: "0 8px" }}>
+        {results.map((r) => {
+          const getTagColor = (guideType: string) => {
+            if (guideType === "CVD") return { bg: "#3b82f6", text: "#fff" }; // Blue
+            if (guideType === "White Paper") return { bg: "#ffffff", text: "#000", border: "1px solid #ddd" }; // White
+            if (guideType === "Integration Guide") return { bg: "#f97316", text: "#fff" }; // Orange
+            return { bg: "#e5e7eb", text: "#6b7280" }; // Default gray
+          };
+
+          const tagStyle = getTagColor(r.guide_type);
+
+          return (
+            <div
+              key={r.url}
+              style={{
+                border: "1px solid #eee",
+                borderRadius: 14,
+                padding: 14,
+                position: "relative",
+                width: "100%",
+                boxSizing: "border-box"
+              }}
+            >
+              <div style={{ 
+                position: "absolute", 
+                top: 8, 
+                right: 8, 
+                display: "flex", 
+                gap: 6, 
+                flexDirection: "column", 
+                alignItems: "flex-end",
+                zIndex: 1
+              }}>
+                {r.guide_type && (
+                  <span
+                    style={{
+                      padding: "4px 8px",
+                      borderRadius: 6,
+                      fontSize: "clamp(10px, 2vw, 11px)",
+                      fontWeight: 600,
+                      backgroundColor: tagStyle.bg,
+                      color: tagStyle.text,
+                      border: tagStyle.border || "none",
+                      whiteSpace: "nowrap"
+                    }}
+                  >
+                    {r.guide_type}
+                  </span>
+                )}
+                {Number.isFinite(r.score) && (
+                  <span
+                    style={{
+                      padding: "4px 8px",
+                      borderRadius: 6,
+                      fontSize: "clamp(10px, 2vw, 11px)",
+                      fontWeight: 600,
+                      backgroundColor: "#6b7280",
+                      color: "#fff",
+                      fontFamily: "monospace",
+                      whiteSpace: "nowrap"
+                    }}
+                  >
+                    {r.score.toFixed(3)}
+                  </span>
+                )}
+              </div>
+              <div style={{ 
+                display: "flex", 
+                justifyContent: "space-between", 
+                gap: 12, 
+                paddingRight: (r.guide_type || Number.isFinite(r.score)) ? "clamp(80px, 15vw, 100px)" : 0,
+                wordBreak: "break-all"
+              }}>
+                <a 
+                  href={r.url} 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  style={{ 
+                    fontWeight: 600,
+                    fontSize: "clamp(14px, 2.5vw, 16px)",
+                    wordBreak: "break-all",
+                    overflowWrap: "break-word",
+                    flex: 1
+                  }}
+                >
+                  {r.url}
+                </a>
+              </div>
+              <p style={{ 
+                marginTop: 8, 
+                color: "#333",
+                textAlign: "justify",
+                textAlignLast: "left",
+                lineHeight: "1.6",
+                wordWrap: "break-word",
+                overflowWrap: "break-word",
+                fontSize: "clamp(14px, 2.5vw, 16px)"
+              }}>{r.abstract_1l}</p>
             </div>
-            <p style={{ marginTop: 8, color: "#333" }}>{r.abstract_1l}</p>
-          </div>
-        ))}
+          );
+        })}
       </div>
-    </main>
+      </main>
+    </>
   );
 }
