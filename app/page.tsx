@@ -48,15 +48,58 @@ export default function Home() {
             min-width: 120px;
           }
         }
+        @media (prefers-color-scheme: dark) {
+          .main-container {
+            background: var(--background, #0a0a0a);
+            color: var(--foreground, #ededed);
+          }
+          .title-text {
+            color: var(--foreground, #ededed) !important;
+          }
+          .input-field {
+            background: #1a1a1a !important;
+            border-color: #333 !important;
+            color: var(--foreground, #ededed) !important;
+          }
+          .input-field::placeholder {
+            color: #888 !important;
+          }
+          .search-btn {
+            background: #2a2a2a !important;
+            border-color: #444 !important;
+            color: var(--foreground, #ededed) !important;
+          }
+          .search-btn:disabled {
+            opacity: 0.5;
+          }
+          .result-card {
+            background: #1a1a1a !important;
+            border-color: #333 !important;
+          }
+          .result-text {
+            color: #d1d1d1 !important;
+          }
+          .result-link {
+            color: #60a5fa !important;
+          }
+          .error-text {
+            color: #f87171 !important;
+          }
+          .white-paper-tag {
+            background: #2a2a2a !important;
+            color: #ededed !important;
+            border-color: #444 !important;
+          }
+        }
       `}} />
-      <main style={{ 
+      <main className="main-container" style={{ 
         maxWidth: 900, 
         margin: "40px auto", 
         padding: "16px",
         width: "100%",
         boxSizing: "border-box"
       }}>
-        <h1 style={{ 
+        <h1 className="title-text" style={{ 
           fontSize: "clamp(20px, 4vw, 28px)", 
           fontWeight: 700,
           padding: "0 8px"
@@ -72,6 +115,7 @@ export default function Home() {
           padding: "0 8px"
         }}>
           <input
+            className="input-field"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="Describe what you're looking for (e.g., 'AI training pod design with UCS and Nexus')"
@@ -85,7 +129,7 @@ export default function Home() {
             }}
           />
           <button
-            className="search-button"
+            className="search-button search-btn"
             onClick={onSearch}
             disabled={loading || !prompt.trim()}
             style={{
@@ -102,7 +146,7 @@ export default function Home() {
         </div>
 
       {error && (
-        <p style={{ marginTop: 12, color: "crimson", padding: "0 8px" }}>
+        <p className="error-text" style={{ marginTop: 12, color: "crimson", padding: "0 8px" }}>
           {error}
         </p>
       )}
@@ -121,6 +165,7 @@ export default function Home() {
           return (
             <div
               key={r.url}
+              className="result-card"
               style={{
                 border: "1px solid #eee",
                 borderRadius: 14,
@@ -142,6 +187,7 @@ export default function Home() {
               }}>
                 {r.guide_type && (
                   <span
+                    className={r.guide_type === "White Paper" ? "white-paper-tag" : ""}
                     style={{
                       padding: "4px 8px",
                       borderRadius: 6,
@@ -183,7 +229,8 @@ export default function Home() {
                 <a 
                   href={r.url} 
                   target="_blank" 
-                  rel="noreferrer" 
+                  rel="noreferrer"
+                  className="result-link"
                   style={{ 
                     fontWeight: 600,
                     fontSize: "clamp(14px, 2.5vw, 16px)",
@@ -195,7 +242,7 @@ export default function Home() {
                   {r.url}
                 </a>
               </div>
-              <p style={{ 
+              <p className="result-text" style={{ 
                 marginTop: 8, 
                 color: "#333",
                 textAlign: "justify",
