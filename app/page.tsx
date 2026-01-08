@@ -15,6 +15,41 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Function to highlight keywords in text
+  const highlightKeywords = (text: string, searchQuery: string) => {
+    if (!searchQuery.trim()) return text;
+
+    // Extract keywords (words with 3+ characters, case-insensitive)
+    const keywords = searchQuery
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(word => word.length >= 3)
+      .filter(word => !['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'way', 'who', 'boy', 'did', 'its', 'let', 'put', 'say', 'she', 'too', 'use'].includes(word));
+
+    if (keywords.length === 0) return text;
+
+    // Create a regex pattern that matches any of the keywords (whole words only, case-insensitive)
+    const pattern = new RegExp(`\\b(${keywords.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})\\b`, 'gi');
+    
+    const parts = text.split(pattern);
+    
+    return parts.map((part, index) => {
+      // Check if this part matches any keyword (case-insensitive)
+      const isKeyword = keywords.some(keyword => 
+        part.toLowerCase() === keyword.toLowerCase()
+      );
+      
+      if (isKeyword) {
+        return (
+          <mark key={index} className="highlight-keyword">
+            {part}
+          </mark>
+        );
+      }
+      return part;
+    });
+  };
+
   async function onSearch() {
     setLoading(true);
     setError(null);
@@ -89,6 +124,19 @@ export default function Home() {
             background: #2a2a2a !important;
             color: #ededed !important;
             border-color: #444 !important;
+          }
+        }
+        .highlight-keyword {
+          background-color: #fef08a;
+          color: inherit;
+          padding: 2px 0;
+          border-radius: 2px;
+          font-weight: 600;
+        }
+        @media (prefers-color-scheme: dark) {
+          .highlight-keyword {
+            background-color: #854d0e;
+            color: #fef08a;
           }
         }
       `}} />
@@ -251,7 +299,7 @@ export default function Home() {
                 wordWrap: "break-word",
                 overflowWrap: "break-word",
                 fontSize: "clamp(14px, 2.5vw, 16px)"
-              }}>{r.abstract_1l}</p>
+              }}>{highlightKeywords(r.abstract_1l, prompt)}</p>
             </div>
           );
         })}
